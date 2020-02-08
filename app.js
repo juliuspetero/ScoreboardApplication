@@ -21,11 +21,6 @@ sequelize
   .then(() => console.log('Connection has been established successfully.'))
   .catch(err => console.error('Unable to connect to the database:', err));
 
-// app.get('/test/:id', (req, res) => {
-//   // res.send(req.params.id);
-//   res.send(req.query.id);
-// });
-
 // Http requests flow to their respective routes
 app.use('/', require('./routes/homeRoute'));
 app.use('/api/accounts', require('./routes/accountsRoute'));
