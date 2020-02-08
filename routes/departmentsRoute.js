@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const passport = require('../helpers/passportAuthentication');
 
-const DepartmentsController = require('../controllers/departmentsController');
+const DepartmentsController = require('../controllers/DepartmentsController');
 const departmentsController = new DepartmentsController();
 
 router.get('/get-users-by-department', (req, res) =>

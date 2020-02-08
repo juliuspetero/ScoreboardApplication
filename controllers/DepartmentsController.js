@@ -1,6 +1,6 @@
 const isEmpty = require('lodash/isEmpty');
 
-const DepartmentsRepository = require('../repositories/departmentsRepository');
+const DepartmentsRepository = require('../repositories/DepartmentsRepository');
 const departmentRepository = new DepartmentsRepository();
 
 class DepartmentsController {
