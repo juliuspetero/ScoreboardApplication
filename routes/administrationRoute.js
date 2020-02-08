@@ -8,7 +8,7 @@ const administrationController = new AdministrationController();
 router.post('/add-users-to-role', (req, res) =>
   administrationController.addUsersToRole(req, res)
 );
-router.get('/add-roles-to-user', (req, res) =>
-  administrationController.addRolesToUsers(req, res)
+router.post('/add-roles-to-user', (req, res) =>
+  administrationController.addRolesToUser(req, res)
 );
 module.exports = router;

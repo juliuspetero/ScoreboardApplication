@@ -8,8 +8,8 @@ class RolesRepository {
         {
           model: User,
           as: 'users',
-          required: false, // Required true allows only roles with users to be displayed
-          attributes: ['id', 'email', 'username'],
+          required: false, // This queries all the users even if they don't have any roles
+          attributes: ['id', 'email'],
           through: {
             model: UserRole,
             as: 'userRoles',
@@ -22,7 +22,22 @@ class RolesRepository {
 
   // Find a particular role by his unique Id
   async findRoleByIdAsync(id) {
-    return await Role.findOne({ where: { id }, raw: true });
+    return await Role.findOne({
+      where: { id },
+      include: [
+        {
+          model: User,
+          as: 'users',
+          required: false,
+          attributes: ['id', 'email'],
+          through: {
+            model: UserRole,
+            as: 'userRoles',
+            attributes: []
+          }
+        }
+      ]
+    });
   }
 
   async createRoleAsync(name) {
@@ -45,7 +60,7 @@ class RolesRepository {
           model: User,
           as: 'users',
           required: false,
-          attributes: ['id', 'email', 'username'],
+          attributes: ['id', 'email'],
           through: {
             model: UserRole,
             as: 'userRoles',

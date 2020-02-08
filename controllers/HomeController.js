@@ -1,7 +1,9 @@
 class HomeController {
   constructor() {}
   index(req, res) {
-    res.json({ message: 'Employee Portal Application is Up Running' });
+    res.json(req.user);
+    // console.log(req.user);
+    console.log(req);
   }
 }
 

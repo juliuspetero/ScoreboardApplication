@@ -1,33 +1,26 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('Users', {
+    return queryInterface.createTable('KPIScoreBoards', {
       id: {
         allowNull: false,
         autoIncrement: false,
         primaryKey: true,
         type: Sequelize.UUID
       },
-      email: {
-        type: Sequelize.STRING
+      // Scoreboard has many KPIs n:n
+      KPIId: {
+        type: Sequelize.UUID
       },
-      username: {
-        type: Sequelize.STRING
+      // KPIs can be in may scoreboards n:n
+      scoreBoardId: {
+        type: Sequelize.UUID
       },
-      password: {
-        type: Sequelize.STRING
+      KPIWeight: {
+        type: Sequelize.DOUBLE
       },
-      phoneNumber: {
-        type: Sequelize.STRING
-      },
-      departmentId: {
-        type: Sequelize.STRING
-      },
-      sex: {
-        type: Sequelize.STRING
-      },
-      address: {
-        type: Sequelize.STRING
+      KPIScore: {
+        type: Sequelize.DOUBLE
       },
       createdAt: {
         allowNull: false,
@@ -40,6 +33,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Users');
+    return queryInterface.dropTable('KPIScoreBoards');
   }
 };

@@ -15,9 +15,16 @@ const jwtOptions = {
 // Create a strategy for a web token authentication i.e.
 // the description on how the token should be validated and decrypted
 const strategy = new JwtStrategy(jwtOptions, async (jwtPayload, done) => {
-  const user = await accountsRepository.findUserByID(jwtPayload.id);
-  if (user) done(null, user);
-  else done(null, false);
+  //  If no toke or token expired, password call done and pass in error = null, user = false and info
+  // It does not execute any other code
+
+  // This is when the token is valid
+  const user = await accountsRepository.findUserById(
+    jwtPayload.userInformation.id
+  );
+
+  if (user) return done(null, user);
+  else return done('Error', false);
 });
 
 // Tell Passport to use this strategy

@@ -1,4 +1,8 @@
 const bcrypt = require('bcryptjs');
+const validator = require('validator');
+const isEmpty = require('lodash/isEmpty');
+
+const { UserRole } = require('../models');
 
 const UsersRepository = require('../repositories/UsersRepository');
 const usersRepository = new UsersRepository();
@@ -16,37 +20,49 @@ class UsersController {
         .json({ message: `User with ID = ${req.params.id} is not found!` });
     else res.status(200).json(user);
   }
-  async createUser(req, res) {
-    const { email, password } = req.body;
 
-    // Validate the user's credentials
-    let errors = 'There is problem';
-    if (!email) errors += ', email is required';
-    if (!password) errors += ', password is required';
-    if (errors != 'There is problem') {
-      res.status(400).json({
-        message: errors
-      });
+  async createUser(req, res) {
+    const unhashedPassword = req.body.password;
+    const { errors, isValid } = this.validateInput(req.body);
+
+    if (!isValid) {
+      res.status(400).json(errors);
+      return;
     }
 
-    // Find the user with the specified email
-    let user = await usersRepository.findUserByEmailAsync(email);
+    // DELETE THIS LINE OF CODE
+    // res.status(201).json({
+    //   message: `User with email ${req.body.email} has been created successfully`,
+    //   password: unhashedPassword
+    // });
+    // return;
+
+    let user = await usersRepository.findUserByEmailAsync(req.body.email);
+
     if (user != null) {
       // Sending the response terminates a particular HTTP request
       res.status(400).send({
-        message: `The user with email ${email} already exists`
+        message: `The user with email ${req.body.email} already exists`
       });
     } else {
       // The user is not yet taken, so encrypt the password
       const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
+      const hashedPassword = await bcrypt.hash(req.body.password, salt);
       req.body.password = hashedPassword;
 
       // Create a new user with the hashed passsword
       user = await usersRepository.createUserAsync(req.body);
+      console.log(user.dataValues);
+
+      // Add user with the Id to a role by saving UserRole to the Database
+      const roleId = req.body.roles[0];
+      const userId = user.dataValues.id;
+
+      await UserRole.create({ roleId, userId });
+
       res.status(201).json({
-        message: `User with email ${email} has been created successfully`,
-        password
+        message: `User with email ${req.body.email} has been created successfully`,
+        password: unhashedPassword
       });
     }
   }
@@ -57,7 +73,7 @@ class UsersController {
       // Delete the role
       await usersRepository.removeUserByIdAsync(req.params.id);
       res.status(200).json({
-        message: `User with ID = ${req.params.id} is has been successfully deleted`
+        message: `User with ID = ${req.params.id} has been successfully deleted`
       });
     } else {
       res.status(404).json({
@@ -76,7 +92,7 @@ class UsersController {
       });
     } else {
       res.status(404).json({
-        message: `Role with ID = ${req.params.id} is not found!`
+        message: `User with ID = ${req.params.id} is not found!`
       });
     }
   }
@@ -91,6 +107,55 @@ class UsersController {
         message: `Role with ID = ${req.params.id} is not found!`
       });
     }
+  }
+
+  validateInput(data) {
+    let errors = {};
+
+    // Email validation
+    if (data.email == null) errors.email = 'Email is required';
+    else if (!validator.isEmail(data.email))
+      errors.email = 'Email is not correct';
+
+    // Phone number validation
+    if (data.phoneNumber == null || data.phoneNumber.length < 8)
+      errors.phoneNumber = 'Phone is required and should be valid';
+    if (data.username == null || data.username == '')
+      errors.username = 'User Name is required';
+
+    // Password validation
+    if (data.password == null) errors.password = 'Password is required';
+    else if (data.password.length < 4)
+      errors.password = 'Password must be greater 3 characters';
+    if (data.passwordConfirmation == null)
+      errors.passwordConfirmation = 'Password Confirmation is required';
+    if (
+      data.password != null &&
+      data.passwordConfirmation != null &&
+      !validator.equals(data.password, data.passwordConfirmation)
+    )
+      errors.passwordConfirmation = 'Passwords must match';
+
+    // Check for department selection
+    if (data.departmentId == null)
+      errors.department = 'DepartmentId is required';
+
+    // Check for the roles validation
+    if (data.roles == null) errors.roles = 'Roles are required';
+    else if (!Array.isArray(data.roles))
+      errors.roles = 'Roles should be an array';
+    else if (Array.isArray(data.roles)) {
+      if (data.roles.length == 0)
+        errors.roles = 'Roles cannot be an empty array';
+      data.roles.forEach(role => {
+        if (role === '') errors.roles = 'A role cannot not be empty';
+      });
+    }
+
+    return {
+      errors,
+      isValid: isEmpty(errors)
+    };
   }
 }
 

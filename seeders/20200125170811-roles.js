@@ -3,28 +3,20 @@ const uniqid = require('uniqid');
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    // Add altering commands here.
-    // Return a promise to correctly handle asynchronicity.
-
-    // Example:
     return queryInterface.bulkInsert(
       'Roles',
       [
         {
           id: uniqid(),
-          name: 'administrator'
+          name: 'HRM'
         },
         {
           id: uniqid(),
-          name: 'manager'
+          name: 'Line Manager'
         },
         {
           id: uniqid(),
-          name: 'generalManager'
-        },
-        {
-          id: uniqid(),
-          name: 'employee'
+          name: 'Line Stuff'
         }
       ],
       {}
