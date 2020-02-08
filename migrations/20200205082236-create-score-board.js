@@ -11,16 +11,15 @@ module.exports = {
       title: {
         type: Sequelize.STRING
       },
-      // userId: {
-      //   type: Sequelize.UUID
-      // },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.fn('now')
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.fn('now')
       }
     });
   },

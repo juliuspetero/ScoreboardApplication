@@ -1,9 +1,9 @@
 {
   "development": {
-    "username": "juliuspetero",
-    "password": "julius123",
-    "database": "employees_db",
-    "host": "127.0.0.1",
+    "username": "julio",
+    "password": "kyambogo45JP@",
+    "database": "scoreboard-app",
+    "host": "167.172.251.118",
     "dialect": "mysql"
   },
   "production": {
