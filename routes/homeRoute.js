@@ -6,8 +6,9 @@ const passport = require('passport');
 const HomeController = require('../controllers/HomeController');
 const homeController = new HomeController();
 
-router.get('/', authenticateUser, (req, res) => homeController.index(req, res));
+router.get('/', (req, res) => homeController.index(req, res));
 
+// Passed authenticateUser in the route you would like to protect
 function authenticateUser(req, res, next) {
   passport.authenticate('jwt', { session: false }, (error, user, info) => {
     // Default error = null, user = false and infor = object
