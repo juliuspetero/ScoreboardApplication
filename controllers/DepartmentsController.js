@@ -5,8 +5,8 @@ const departmentRepository = new DepartmentsRepository();
 
 class DepartmentsController {
   async getAllDepartments(req, res) {
-    const roles = await departmentRepository.findAllKPIsAsync();
-    res.status(200).json(roles);
+    const departments = await departmentRepository.findAllDepartmentsAsync();
+    res.status(200).json(departments);
   }
 
   async getUserByDepartment(req, res) {
