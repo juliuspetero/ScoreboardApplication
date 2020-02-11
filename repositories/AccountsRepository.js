@@ -1,4 +1,4 @@
-const { User } = require('../models');
+const { User, Role, Department, UserRole } = require('../models');
 
 class AccountRepository {
   // Create a single user in the database
@@ -11,23 +11,29 @@ class AccountRepository {
     return await User.findOne({ where: { id }, raw: true });
   }
 
-  // Find the user and populate his roles
-  async findUserById2(id) {
+  async findUserByEmailAsync(email) {
     return await User.findOne({
-      where: { id },
-      raw: true,
+      where: { email },
       include: [
         {
-          model: 'Role',
-          as: 'groups',
-          attributes: ['id', 'name']
+          model: Role,
+          as: 'roles',
+          required: false, // Required true allows only roles with users to be displayed
+          attributes: ['id', 'name'],
+          through: {
+            model: UserRole,
+            as: 'userRoles',
+            // Attribute in the userRoles which needs to be included
+            attributes: []
+          }
+        },
+        {
+          model: Department,
+          as: 'department',
+          attributes: ['id', 'title']
         }
       ]
     });
-  }
-
-  async findUserByEmail(email) {
-    return await User.findOne({ where: { email }, raw: true });
   }
 
   // Fetch all the user in the database

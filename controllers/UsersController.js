@@ -52,7 +52,6 @@ class UsersController {
 
       // Create a new user with the hashed passsword
       user = await usersRepository.createUserAsync(req.body);
-      console.log(user.dataValues);
 
       // Add user with the Id to a role by saving UserRole to the Database
       const roleId = req.body.roles[0];

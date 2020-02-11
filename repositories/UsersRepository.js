@@ -3,31 +3,27 @@ const { User, Role, UserRole, Department } = require('../models');
 class UsersRepository {
   // Fetch all the Users in the database
   async findAllUsersAsync() {
-    try {
-      return await User.findAll({
-        include: [
-          {
-            model: Role,
-            as: 'roles',
-            required: false, // Required true allows only roles with users to be displayed
-            attributes: ['id', 'name'],
-            through: {
-              model: UserRole,
-              as: 'userRoles',
-              // Attribute in the userRoles which needs to be included
-              attributes: []
-            }
-          },
-          {
-            model: Department,
-            as: 'department',
-            attributes: ['id', 'title']
+    return await User.findAll({
+      include: [
+        {
+          model: Role,
+          as: 'roles',
+          required: false, // Required true allows only roles with users to be displayed
+          attributes: ['id', 'name'],
+          through: {
+            model: UserRole,
+            as: 'userRoles',
+            // Attribute in the userRoles which needs to be included
+            attributes: []
           }
-        ]
-      });
-    } catch (error) {
-      return error;
-    }
+        },
+        {
+          model: Department,
+          as: 'department',
+          attributes: ['id', 'title']
+        }
+      ]
+    });
   }
 
   // Find a particular User by his unique Id
@@ -46,6 +42,11 @@ class UsersRepository {
             // Attribute in the userRoles which needs to be included
             attributes: []
           }
+        },
+        {
+          model: Department,
+          as: 'department',
+          attributes: ['id', 'title']
         }
       ]
     });

@@ -1,5 +1,4 @@
 const isEmpty = require('lodash/isEmpty');
-
 const KpisRepository = require('../repositories/KpisRepository');
 const kpisRepository = new KpisRepository();
 const AccountsRepository = require('../repositories/AccountsRepository');

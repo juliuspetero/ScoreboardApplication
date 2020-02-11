@@ -12,9 +12,6 @@ module.exports = (sequelize, DataTypes) => {
     },
     {}
   );
-  Department.associate = function(models) {
-    Department.hasMany(models.User);
-  };
 
   Department.beforeCreate(department => (department.id = uniqid()));
   return Department;

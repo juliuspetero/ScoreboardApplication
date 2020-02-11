@@ -60,7 +60,8 @@ class AccountsController {
       return;
     }
 
-    const user = await accountsRepository.findUserByEmail(email);
+    const user = await accountsRepository.findUserByEmailAsync(email);
+
     if (!user) {
       res
         .status(401)

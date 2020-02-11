@@ -10,21 +10,7 @@ const {
 class KpisRepository {
   // Fetch all the roles in the database
   async findAllKPIsAsync() {
-    return await KPI.findAll({
-      include: [
-        {
-          model: ScoreBoard,
-          as: 'scoreBoards',
-          required: false, // This queries all the users even if they don't have any roles
-          attributes: ['id', 'title'],
-          through: {
-            model: KPIScoreBoard,
-            as: 'kPIScoreBoard',
-            attributes: []
-          }
-        }
-      ]
-    });
+    return await KPI.findAll({ raw: true });
   }
 
   // Find a particular role by his unique Id
