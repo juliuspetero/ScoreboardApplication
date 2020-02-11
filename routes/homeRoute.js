@@ -6,6 +6,7 @@ const passport = require('passport');
 const HomeController = require('../controllers/HomeController');
 const homeController = new HomeController();
 
+// This is what the user see when he navigate to the landing pageg
 router.get('/', (req, res) => homeController.index(req, res));
 
 // Passed authenticateUser in the route you would like to protect
