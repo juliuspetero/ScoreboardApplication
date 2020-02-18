@@ -36,9 +36,7 @@ class AccountsController {
       // Login the new user by creating and sending token
       const payload = { id: user.id };
       // The token expires after 1 hour
-      const token = jwt.sign(payload, secretOrKey, {
-        expiresIn: 3600
-      });
+      const token = jwt.sign(payload, secretOrKey);
       res.json({
         token: token,
         id: user.id,
@@ -70,9 +68,7 @@ class AccountsController {
     }
     if (await bcrypt.compare(password, user.password)) {
       const payload = { userInformation: user };
-      const token = jwt.sign(payload, secretOrKey, {
-        expiresIn: 3600
-      });
+      const token = jwt.sign(payload, secretOrKey);
 
       let currentDate = new Date();
       currentDate.setHours(currentDate.getHours() + 1);

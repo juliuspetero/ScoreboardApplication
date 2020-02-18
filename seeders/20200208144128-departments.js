@@ -16,10 +16,6 @@ module.exports = {
         },
         {
           id: uniqid(),
-          title: 'Finance and Administration'
-        },
-        {
-          id: uniqid(),
           title: 'Help Desk'
         },
         {

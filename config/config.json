@@ -1,16 +1,16 @@
 {
   "development": {
-    "username": "root",
-    "password": "",
-    "database": "employees_db",
-    "host": "localhost",
+    "username": "scoreboard",
+    "password": "Scoreboard123@",
+    "database": "scoreboard",
+    "host": "64.225.25.98",
     "dialect": "mysql"
   },
   "production": {
-    "username": "root",
-    "password": "",
-    "database": "employees_db",
-    "host": "localhost",
+    "username": "scoreboard",
+    "password": "Scoreboard123@",
+    "database": "scoreboard",
+    "host": "64.225.25.98",
     "dialect": "mysql"
   },
   "secretOrKey": "tokensigningkey"
