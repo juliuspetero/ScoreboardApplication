@@ -22,7 +22,7 @@ class KpisRepository {
           model: ScoreBoard,
           as: 'scoreBoards',
           required: false,
-          attributes: ['id', 'title'],
+          attributes: ['id', 'userId'],
           through: {
             model: KPIScoreBoard,
             as: 'kPIScoreBoards',

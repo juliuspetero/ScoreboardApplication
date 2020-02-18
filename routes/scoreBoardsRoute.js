@@ -8,24 +8,25 @@ const scoreBoardsController = new ScoreBoardsController();
 router.get('/', (req, res) =>
   scoreBoardsController.getAllScoreBoards(req, res)
 );
+
 router.get('/get-user-scoreboards', (req, res) =>
   scoreBoardsController.getUserScoreBoards(req, res)
 );
-router.get('/get-users-scoreboards', (req, res) =>
-  scoreBoardsController.getUsersScoreBoards(req, res)
-);
 router.get('/:id', (req, res) =>
-  scoreBoardsController.getScoreBoadById(req, res)
+  scoreBoardsController.getScoreboardById(req, res)
 );
-router.get('/:id', (req, res) =>
-  scoreBoardsController.getScoreBoadByUserId(req, res)
-);
+
 router.delete('/:id', (req, res) =>
   scoreBoardsController.deleteScoreBoardById(req, res)
 );
 router.put('/edit-kpi-scores', (req, res) =>
   scoreBoardsController.editKPIScores(req, res)
 );
+
+router.put('/edit-kpi-weights', (req, res) =>
+  scoreBoardsController.editKPIWeights(req, res)
+);
+
 router.put('/:id', (req, res) =>
   scoreBoardsController.updateScoreBoardById(req, res)
 );

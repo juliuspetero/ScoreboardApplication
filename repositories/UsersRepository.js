@@ -1,4 +1,4 @@
-const { User, Role, UserRole, Department } = require('../models');
+const { User, Role, UserRole, Department, ScoreBoard } = require('../models');
 
 class UsersRepository {
   // Fetch all the Users in the database

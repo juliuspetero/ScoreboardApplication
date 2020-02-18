@@ -1,16 +1,16 @@
 {
   "development": {
-    "username": "julio",
-    "password": "kyambogo45JP@",
-    "database": "scoreboard-app",
-    "host": "167.172.251.118",
+    "username": "root",
+    "password": "",
+    "database": "employees_db",
+    "host": "localhost",
     "dialect": "mysql"
   },
   "production": {
-    "username": "julio",
-    "password": "kyambogo45JP@",
-    "database": "scoreboard-app",
-    "host": "167.172.251.118",
+    "username": "root",
+    "password": "",
+    "database": "employees_db",
+    "host": "localhost",
     "dialect": "mysql"
   },
   "secretOrKey": "tokensigningkey"

@@ -22,8 +22,15 @@ class ScoreBoardsRepository {
             as: 'kPIScoreBoard',
             attributes: ['KPIWeight', 'KPIScore']
           }
+        },
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'username', 'departmentId']
         }
-      ]
+      ],
+      // limit: 1,
+      order: [['updatedAt', 'DESC']]
     });
   }
 
@@ -42,12 +49,18 @@ class ScoreBoardsRepository {
             as: 'kPIScoreBoard',
             attributes: ['KPIWeight', 'KPIScore']
           }
+        },
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'username', 'departmentId']
         }
-      ]
+      ],
+      order: [['updatedAt', 'DESC']]
     });
   }
 
-  // Find a particular role by his unique Id
+  // Find a particular scoreboard by his unique Id
   async findScoreBoardByIdAsync(id) {
     return await ScoreBoard.findOne({
       where: { id },
@@ -62,6 +75,11 @@ class ScoreBoardsRepository {
             as: 'kPIScoreBoards',
             attributes: ['KPIWeight', 'KPIScore']
           }
+        },
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'username', 'departmentId']
         }
       ]
     });

@@ -9,16 +9,12 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         type: DataTypes.UUID
       },
-      title: DataTypes.STRING
-      // userId: DataTypes.UUID
+      userId: DataTypes.UUID
     },
     {}
   );
   ScoreBoard.associate = function(models) {
     ScoreBoard.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
-  };
-
-  ScoreBoard.associate = function(models) {
     ScoreBoard.belongsToMany(models.KPI, {
       through: 'KPIScoreboards',
       foreignKey: 'scoreBoardId',

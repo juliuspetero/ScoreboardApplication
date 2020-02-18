@@ -20,11 +20,12 @@ module.exports = (sequelize, DataTypes) => {
     {}
   );
 
-  // User.associate = function(models) {
-  //   User.hasMany(models.ScoreBoard, { as: 'scoreBoards' });
-  // };
-
   User.associate = function(models) {
+    User.hasMany(models.ScoreBoard, {
+      foreignKey: 'userId',
+      as: 'scoreBoards'
+    });
+
     User.belongsTo(models.Department, {
       foreignKey: 'departmentId',
       as: 'department'

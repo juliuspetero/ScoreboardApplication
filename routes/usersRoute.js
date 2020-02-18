@@ -6,6 +6,9 @@ const UsersController = require('../controllers/UsersController');
 const usersController = new UsersController();
 
 //passport.authenticate('jwt', { session: false }),
+router.get('/search', (req, res) =>
+  usersController.getAllUsersByTerm(req, res)
+);
 router.get('/', (req, res) => usersController.getAllUsers(req, res));
 router.get('/:id', (req, res) => usersController.getUserById(req, res));
 router.delete('/:id', (req, res) => usersController.deleteUserById(req, res));

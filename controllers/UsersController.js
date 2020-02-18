@@ -1,8 +1,9 @@
 const bcrypt = require('bcryptjs');
 const validator = require('validator');
 const isEmpty = require('lodash/isEmpty');
+const { Op } = require('sequelize');
 
-const { UserRole } = require('../models');
+const { UserRole, User, Department, Role } = require('../models');
 
 const UsersRepository = require('../repositories/UsersRepository');
 const usersRepository = new UsersRepository();
@@ -12,6 +13,40 @@ class UsersController {
     const users = await usersRepository.findAllUsersAsync();
     res.status(200).json(users);
   }
+
+  // Search for users by thier user names
+  async getAllUsersByTerm(req, res) {
+    const { query } = req.query;
+    const users = await User.findAll({
+      where: {
+        [Op.or]: [
+          { username: { [Op.like]: '%' + query + '%' } },
+          { email: { [Op.like]: '%' + query + '%' } }
+        ]
+      },
+      include: [
+        {
+          model: Role,
+          as: 'roles',
+          required: false, // Required true allows only roles with users to be displayed
+          attributes: ['id', 'name'],
+          through: {
+            model: UserRole,
+            as: 'userRoles',
+            // Attribute in the userRoles which needs to be included
+            attributes: []
+          }
+        },
+        {
+          model: Department,
+          as: 'department',
+          attributes: ['id', 'title']
+        }
+      ]
+    });
+    res.json(users);
+  }
+
   async getUserById(req, res) {
     const user = await usersRepository.findUserByIdAsync(req.params.id);
     if (user == null)
