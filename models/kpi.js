@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         type: DataTypes.UUID
       },
+      departmentId: DataTypes.UUID,
       title: DataTypes.STRING,
       description: DataTypes.TEXT
     },
@@ -15,6 +16,10 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   KPI.associate = function(models) {
+    KPI.belongsTo(models.Department, {
+      foreignKey: 'departmentId',
+      as: 'department'
+    });
     KPI.belongsToMany(models.ScoreBoard, {
       through: 'KPIScoreboards',
       foreignKey: 'KPIId',

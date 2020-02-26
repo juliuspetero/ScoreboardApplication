@@ -15,7 +15,7 @@ class RolesController {
       res
         .status(404)
         .json({ message: `KPI with ID = ${req.params.id} is not found!` });
-    else res.status(200).json(role);
+    else res.status(200).json(kpi);
   }
   async createKPI(req, res) {
     const { errors, isValid } = this.validateCreateKPIInput(req.body);

@@ -8,6 +8,9 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.UUID
       },
+      departmentId: {
+        type: Sequelize.UUID
+      },
       title: {
         type: Sequelize.STRING
       },

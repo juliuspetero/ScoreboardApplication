@@ -2,6 +2,7 @@ const {
   User,
   Role,
   UserRole,
+  Department,
   KPI,
   ScoreBoard,
   KPIScoreBoard
@@ -10,7 +11,15 @@ const {
 class KpisRepository {
   // Fetch all the roles in the database
   async findAllKPIsAsync() {
-    return await KPI.findAll({ raw: true });
+    return await KPI.findAll({
+      include: [
+        {
+          model: Department,
+          as: 'department',
+          attributes: ['id', 'title']
+        }
+      ]
+    });
   }
 
   // Find a particular role by his unique Id
