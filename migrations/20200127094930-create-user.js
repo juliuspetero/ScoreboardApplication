@@ -21,6 +21,18 @@ module.exports = {
         type: Sequelize.STRING
       },
       departmentId: {
+        type: Sequelize.UUID
+      },
+      employeeType: {
+        type: Sequelize.STRING
+      },
+      jobtitleId: {
+        type: Sequelize.UUID
+      },
+      jobDescription: {
+        type: Sequelize.TEXT
+      },
+      photoUrl: {
         type: Sequelize.STRING
       },
       sex: {

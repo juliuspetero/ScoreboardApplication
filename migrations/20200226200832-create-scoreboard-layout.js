@@ -1,7 +1,7 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('ScoreBoards', {
+    return queryInterface.createTable('ScoreboardLayouts', {
       id: {
         allowNull: false,
         autoIncrement: false,
@@ -10,11 +10,6 @@ module.exports = {
       },
       userId: {
         type: Sequelize.UUID
-      },
-      isApproved: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: false
       },
       createdAt: {
         allowNull: false,
@@ -29,6 +24,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('ScoreBoards');
+    return queryInterface.dropTable('ScoreboardLayouts');
   }
 };

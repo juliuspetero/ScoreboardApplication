@@ -27,11 +27,16 @@ router.put('/edit-kpi-weights', (req, res) =>
   scoreBoardsController.editKPIWeights(req, res)
 );
 
-router.put('/:id', (req, res) =>
-  scoreBoardsController.updateScoreBoardById(req, res)
+router.put('/approval/:id', (req, res) =>
+  scoreBoardsController.updateScoreboardApproval(req, res)
 );
-router.post('/', (req, res) =>
+
+router.post('/scoreboard', (req, res) =>
   scoreBoardsController.createScoreBoard(req, res)
+);
+
+router.post('/', (req, res) =>
+  scoreBoardsController.createScoreBoardList(req, res)
 );
 
 module.exports = router;

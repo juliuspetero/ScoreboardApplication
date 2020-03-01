@@ -25,6 +25,11 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'KPIId',
       as: 'scoreBoards'
     });
+    KPI.belongsToMany(models.ScoreboardLayout, {
+      through: 'KPIScoreboardLayouts',
+      foreignKey: 'KPIId',
+      as: 'scoreBoardLayouts'
+    });
   };
 
   KPI.beforeCreate(kpi => (kpi.id = uniqid()));

@@ -1,20 +1,21 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('ScoreBoards', {
+    return queryInterface.createTable('KPIScoreboardLayouts', {
       id: {
         allowNull: false,
         autoIncrement: false,
         primaryKey: true,
         type: Sequelize.UUID
       },
-      userId: {
+      KPIId: {
         type: Sequelize.UUID
       },
-      isApproved: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: false
+      scoreboardLayoutId: {
+        type: Sequelize.UUID
+      },
+      KPIWeight: {
+        type: Sequelize.DOUBLE
       },
       createdAt: {
         allowNull: false,
@@ -29,6 +30,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('ScoreBoards');
+    return queryInterface.dropTable('KPIScoreboardLayouts');
   }
 };

@@ -30,6 +30,8 @@ app.use('/api/users', require('./routes/usersRoute'));
 app.use('/api/kpis', require('./routes/kpisRoute'));
 app.use('/api/scoreboards', require('./routes/scoreBoardsRoute'));
 app.use('/api/departments', require('./routes/departmentsRoute'));
+app.use('/api/jobtitles', require('./routes/jobtitlesRoute'));
+app.use('/api/scoreboardlayouts', require('./routes/scoreboardLayoutRoute'));
 
 // Global Error Handling
 app.use((error, req, res, next) => {

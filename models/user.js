@@ -13,7 +13,11 @@ module.exports = (sequelize, DataTypes) => {
       username: DataTypes.STRING,
       password: DataTypes.STRING,
       phoneNumber: DataTypes.STRING,
-      departmentId: DataTypes.STRING,
+      employeeType: DataTypes.STRING,
+      departmentId: DataTypes.UUID,
+      jobtitleId: DataTypes.UUID,
+      jobDescription: DataTypes.TEXT,
+      photoUrl: DataTypes.STRING,
       sex: DataTypes.STRING,
       address: DataTypes.STRING
     },
@@ -26,10 +30,21 @@ module.exports = (sequelize, DataTypes) => {
       as: 'scoreBoards'
     });
 
+    User.hasOne(models.ScoreboardLayout, {
+      foreignKey: 'userId',
+      as: 'scoreboardLayouts'
+    });
+
     User.belongsTo(models.Department, {
       foreignKey: 'departmentId',
       as: 'department'
     });
+
+    User.belongsTo(models.Jobtitle, {
+      foreignKey: 'jobtitleId',
+      as: 'jobtitle'
+    });
+
     User.belongsToMany(models.Role, {
       through: models.UserRole,
       as: 'roles',

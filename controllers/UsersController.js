@@ -3,10 +3,19 @@ const validator = require('validator');
 const isEmpty = require('lodash/isEmpty');
 const { Op } = require('sequelize');
 
-const { UserRole, User, Department, Role } = require('../models');
+const {
+  UserRole,
+  User,
+  Department,
+  Role,
+  ScoreBoard,
+  KPIScoreBoard
+} = require('../models');
 
 const UsersRepository = require('../repositories/UsersRepository');
 const usersRepository = new UsersRepository();
+const ScoreBoardsRepository = require('../repositories/ScoreBoardsRepository');
+const scoreBoardsRepository = new ScoreBoardsRepository();
 
 class UsersController {
   async getAllUsers(req, res) {
@@ -103,9 +112,17 @@ class UsersController {
 
   async deleteUserById(req, res) {
     const user = await usersRepository.findUserByIdAsync(req.params.id);
-    if (user != null) {
-      // Delete the role
+    if (user !== null) {
+      // Delete User
       await usersRepository.removeUserByIdAsync(req.params.id);
+      const scoreboards = await scoreBoardsRepository.findScoreBoardsByUserId(
+        req.params.id
+      );
+      scoreboards.forEach(async sb => {
+        await KPIScoreBoard.destroy({ where: { scoreBoardId: sb.id } });
+      });
+      await ScoreBoard.destroy({ where: { userId: req.params.id } });
+
       res.status(200).json({
         message: `User with ID = ${req.params.id} has been successfully deleted`
       });

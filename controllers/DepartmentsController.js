@@ -18,7 +18,7 @@ class DepartmentsController {
   }
 
   async getDepartmentById(req, res) {
-    const department = await departmentRepository.findKPIByIdAsync(
+    const department = await departmentRepository.findDepartmentByIdAsync(
       req.params.id
     );
     if (department == null)
@@ -44,7 +44,7 @@ class DepartmentsController {
     const department = await departmentRepository.findDepartmentByIdAsync(
       req.params.id
     );
-    if (kpi != null) {
+    if (department != null) {
       // Delete the role
       await departmentRepository.removeDepartmentByIdAsync(req.params.id);
       res.status(200).json({
@@ -63,10 +63,7 @@ class DepartmentsController {
     );
     if (department != null) {
       // Update the role
-      await departmentRepository.updateDepartmentAsync(
-        req.body.name,
-        req.params.id
-      );
+      await departmentRepository.updateDepartmentAsync(req.body, req.params.id);
       res.status(200).json({
         message: `Department with ID = ${req.params.id} is has been successfully updated`
       });

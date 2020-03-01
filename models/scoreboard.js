@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         type: DataTypes.UUID
       },
+      isApproved: DataTypes.BOOLEAN,
       userId: DataTypes.UUID
     },
     {}

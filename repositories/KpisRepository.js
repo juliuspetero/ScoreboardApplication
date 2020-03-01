@@ -28,15 +28,9 @@ class KpisRepository {
       where: { id },
       include: [
         {
-          model: ScoreBoard,
-          as: 'scoreBoards',
-          required: false,
-          attributes: ['id', 'userId'],
-          through: {
-            model: KPIScoreBoard,
-            as: 'kPIScoreBoards',
-            attributes: []
-          }
+          model: Department,
+          as: 'department',
+          attributes: ['id', 'title']
         }
       ]
     });

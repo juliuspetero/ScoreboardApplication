@@ -9,7 +9,14 @@ const kpisRepository = new KpisRepository();
 const AccountsRepository = require('../repositories/AccountsRepository');
 const accountsRepository = new AccountsRepository();
 
-const { KPIScoreBoard, KPI, ScoreBoard } = require('../models');
+const {
+  KPIScoreBoard,
+  User,
+  KPI,
+  ScoreBoard,
+  ScoreboardLayout,
+  KPIScoreboardLayout
+} = require('../models');
 
 class ScoreBoardsController {
   async getAllScoreBoards(req, res) {
@@ -75,6 +82,98 @@ class ScoreBoardsController {
 
       // Save KPIScoreboard to the DB
       await KPIScoreBoard.create(kPIScoreBoard);
+    }
+  }
+
+  async createScoreBoardList(req, res) {
+    const input = cloneDeep(req.body);
+    const { errors, isValid } = this.validateCreateScoreboardListInput(input);
+    if (!isValid) {
+      res.status(400).json(errors);
+      return;
+    }
+
+    const userIds = req.body.userIds;
+
+    // Loop through all the users supplied
+    for (let i = 0; i <= userIds.length; i++) {
+      if (i > userIds.length - 1) {
+        res
+          .status(201)
+          .json({ message: 'The scoreboards have been create successfully' });
+        break;
+      }
+
+      const userScoreboardLayout = await ScoreboardLayout.findOne({
+        where: {
+          userId: userIds[i]
+        },
+        include: [
+          {
+            model: KPI,
+            as: 'kpis',
+            required: false,
+            attributes: ['id', 'title', 'description'],
+            through: {
+              model: KPIScoreboardLayout,
+              as: 'kPIScoreboardLayouts',
+              attributes: ['KPIWeight']
+            }
+          },
+          {
+            model: User,
+            as: 'user',
+            attributes: ['id', 'username', 'departmentId']
+          }
+        ]
+      });
+
+      // console.log(userScoreboardLayout);
+
+      // The user scoreboard layout has been saved to the database
+      if (userScoreboardLayout !== null) {
+        const kpis = userScoreboardLayout.kpis;
+
+        let scoreBoard = await scoreBoardsRepository.createScoreBoardAsync({
+          userId: userIds[i]
+        });
+
+        // Insert the KPIs for this scoreBoard
+        for (let index = 0; index <= kpis.length; index++) {
+          // Terminate the loop when all the the records has been saved to the DB
+          if (index > kpis.length - 1) {
+            scoreBoard = await scoreBoardsRepository.findScoreBoardByIdAsync(
+              scoreBoard.dataValues.id
+            );
+            // res.status(201).json(scoreBoard);
+            break;
+          }
+
+          // Search for the KPI with given id and make sure it exists
+          const KPI = await kpisRepository.findKPIByIdAsync(kpis[index].id);
+
+          if (KPI == null) {
+            res.status(404).json({
+              message: `KPI with ID = ${kpis[index].id} is not found`
+            });
+            break;
+          }
+
+          // Create a KPIScoreboard object
+          const kPIScoreBoard = {
+            KPIId: kpis[index].id,
+            scoreBoardId: scoreBoard.dataValues.id,
+            KPIWeight: kpis[index].kPIScoreboardLayouts.KPIWeight,
+            KPIScore: 0
+          };
+
+          // console.log(kpis[index].kPIScoreboardLayouts);
+          // return;
+
+          // Save KPIScoreboard to the DB
+          await KPIScoreBoard.create(kPIScoreBoard);
+        }
+      }
     }
   }
 
@@ -218,6 +317,43 @@ class ScoreBoardsController {
       userId
     );
     res.status(200).json(userScoreboards);
+  }
+
+  // Update the approval status of the scoreboard
+  async updateScoreboardApproval(req, res) {
+    const id = req.params.id;
+    const scoreboard = await ScoreBoard.findOne({ where: { id } });
+    if (scoreboard == null)
+      res
+        .status(404)
+        .json({ errorMessage: `The scoreboard with ID = ${id} is not found` });
+    else {
+      await ScoreBoard.update(
+        { isApproved: !scoreboard.isApproved },
+        { where: { id } }
+      );
+
+      res
+        .status(201)
+        .json({ message: `The scoreboard with ID = ${id} has been updated` });
+    }
+  }
+
+  validateCreateScoreboardListInput(data) {
+    let errors = {};
+    // Description validation
+    if (data.userIds == null || !isArray(data.userIds)) {
+      errors.userIds = 'UserIds is required and must be an array';
+    }
+
+    if (isArray(data.userIds) && isEmpty(data.userIds)) {
+      errors.userIds = 'UserIds cannot be empty';
+    }
+
+    return {
+      errors,
+      isValid: isEmpty(errors)
+    };
   }
 
   validateCreateScoreBoardInput(data) {

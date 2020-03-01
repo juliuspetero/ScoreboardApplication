@@ -47,7 +47,7 @@ class RolesController {
     const kpi = await kpisRepository.findKPIByIdAsync(req.params.id);
     if (kpi != null) {
       // Update the role
-      await kpisRepository.updateKPIAsync(req.body.name, req.params.id);
+      await kpisRepository.updateKPIAsync(req.body, req.params.id);
       res.status(200).json({
         message: `KPI with ID = ${req.params.id} is has been successfully updated`
       });

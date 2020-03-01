@@ -43,7 +43,7 @@ class ScoreBoardsRepository {
           model: KPI,
           as: 'kpis',
           required: false, // This queries all the users even if they don't have any roles
-          attributes: ['id', 'title'],
+          attributes: ['id', 'title', 'description'],
           through: {
             model: KPIScoreBoard,
             as: 'kPIScoreBoard',
@@ -56,7 +56,7 @@ class ScoreBoardsRepository {
           attributes: ['id', 'username', 'departmentId']
         }
       ],
-      order: [['updatedAt', 'DESC']]
+      order: [['createdAt', 'DESC']]
     });
   }
 
