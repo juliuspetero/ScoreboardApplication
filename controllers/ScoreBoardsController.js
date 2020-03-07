@@ -15,7 +15,8 @@ const {
   KPI,
   ScoreBoard,
   ScoreboardLayout,
-  KPIScoreboardLayout
+  KPIScoreboardLayout,
+  Jobtitle
 } = require('../models');
 
 class ScoreBoardsController {
@@ -104,9 +105,23 @@ class ScoreBoardsController {
         break;
       }
 
+      const user = await User.findOne({
+        where: {
+          id: userIds[i]
+        }
+      });
+
+      if (user === null) {
+        res.status(404).json({
+          message: `User with ID = ${userIds[i]} is not found!`
+        });
+
+        break;
+      }
+
       const userScoreboardLayout = await ScoreboardLayout.findOne({
         where: {
-          userId: userIds[i]
+          jobtitleId: user.jobtitleId
         },
         include: [
           {
@@ -121,9 +136,9 @@ class ScoreBoardsController {
             }
           },
           {
-            model: User,
-            as: 'user',
-            attributes: ['id', 'username', 'departmentId']
+            model: Jobtitle,
+            as: 'jobtitle',
+            attributes: ['id', 'title', 'departmentId']
           }
         ]
       });

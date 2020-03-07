@@ -5,18 +5,20 @@ const cloneDeep = require('lodash/cloneDeep');
 const {
   KPIScoreboardLayout,
   KPI,
+  Jobtitle,
   ScoreboardLayout,
   User
 } = require('../models');
 
 class ScoreboardLayoutsController {
+  // Retrieve all the layouts from the database
   async getAllscoreboardLayouts(req, res) {
     const scoreboardLayouts = await ScoreboardLayout.findAll({
       include: [
         {
           model: KPI,
           as: 'kpis',
-          required: false, // This queries all the users even if they don't have any roles
+          required: false,
           attributes: ['id', 'title'],
           through: {
             model: KPIScoreboardLayout,
@@ -25,15 +27,16 @@ class ScoreboardLayoutsController {
           }
         },
         {
-          model: User,
-          as: 'user',
-          attributes: ['id', 'username', 'departmentId']
+          model: Jobtitle,
+          as: 'jobtitle',
+          attributes: ['id', 'title', 'departmentId']
         }
       ]
     });
     res.status(200).json(scoreboardLayouts);
   }
 
+  // Get the specifies layout from the database
   async getScoreboardLayoutById(req, res) {
     const scoreboardLayout = await ScoreboardLayout.findOne({
       where: { id: req.params.id },
@@ -50,9 +53,9 @@ class ScoreboardLayoutsController {
           }
         },
         {
-          model: User,
-          as: 'user',
-          attributes: ['id', 'username', 'departmentId']
+          model: Jobtitle,
+          as: 'jobtitle',
+          attributes: ['id', 'title', 'departmentId']
         }
       ]
     });
@@ -64,6 +67,7 @@ class ScoreboardLayoutsController {
   }
 
   async createScoreboardLayout(req, res) {
+    // Handle all the errors
     const input = cloneDeep(req.body);
     const { errors, isValid } = this.validateCreatescoreboardLayoutInput(input);
     if (!isValid) {
@@ -71,26 +75,17 @@ class ScoreboardLayoutsController {
       return;
     }
 
+    const title = req.body.title;
+    const departmentId = req.body.departmentId;
     const KPIIds = req.body.KPIIds;
     const KPIWeights = req.body.KPIWeights;
-    const userId = req.body.userId;
 
-    const userScoreboardLayout = await ScoreboardLayout.findOne({
-      where: {
-        userId
-      }
-    });
+    // Create Job title
+    const jobtitle = await Jobtitle.create({ title, departmentId });
 
-    if (userScoreboardLayout != null) {
-      res.status(400).json({
-        errorMessage: `The scoreboard layout for user with ID = ${userId} has been created`
-      });
-      return;
-    }
-
-    // Insert the userId and title into scoreboardLayouts table
+    // Insert the jobtitle ID and title into scoreboardLayouts table
     let scoreboardLayout = await ScoreboardLayout.create({
-      userId
+      jobtitleId: jobtitle.id
     });
 
     // Insert the KPIs for this scoreboardLayout
@@ -112,9 +107,9 @@ class ScoreboardLayoutsController {
               }
             },
             {
-              model: User,
-              as: 'user',
-              attributes: ['id', 'username', 'departmentId']
+              model: Jobtitle,
+              as: 'jobtitle',
+              attributes: ['id', 'title', 'departmentId']
             }
           ]
         });
@@ -168,6 +163,22 @@ class ScoreboardLayoutsController {
 
   // Update the weight of the KPIs in the scoreboardLayout
   async editKPIWeights(req, res) {
+    // Alter the job the job title
+    const jobtitle = req.body.jobtitle;
+    const jobtitleData = await Jobtitle.findOne({ where: { id: jobtitle.id } });
+    if (jobtitleData != null) {
+      // Update the role
+      await Jobtitle.update(
+        { title: jobtitle.title, departmentId: jobtitle.departmentId },
+        { where: { id: jobtitle.id } }
+      );
+    } else {
+      res.status(404).json({
+        message: `Jobtitle with ID = ${jobtitle.id} is not found!`
+      });
+    }
+
+    // Alter the scoreboard layout
     const scoreboardLayoutId = req.body.scoreboardLayoutId;
     const KPIs = req.body.kpis;
 
@@ -189,9 +200,9 @@ class ScoreboardLayoutsController {
           }
         },
         {
-          model: User,
-          as: 'user',
-          attributes: ['id', 'username', 'departmentId']
+          model: Jobtitle,
+          as: 'jobtitle',
+          attributes: ['id', 'title', 'departmentId']
         }
       ]
     });
@@ -234,9 +245,9 @@ class ScoreboardLayoutsController {
               }
             },
             {
-              model: User,
-              as: 'user',
-              attributes: ['id', 'username', 'departmentId']
+              model: Jobtitle,
+              as: 'jobtitle',
+              attributes: ['id', 'title', 'departmentId']
             }
           ]
         });
@@ -294,9 +305,18 @@ class ScoreboardLayoutsController {
   // Retrieve the scoreboardLayout for a specific user
   async getUserScoreboardLayout(req, res) {
     const userId = req.query.userId;
+    const user = await User.findOne({ where: { id: userId } });
+
+    if (user == null) {
+      res.status(404).json({
+        errorMessage: `User with ID = ${userId} is not found`
+      });
+      return;
+    }
+
     const userScoreboardLayout = await ScoreboardLayout.findOne({
       where: {
-        userId
+        jobtitleId: user.jobtitleId
       },
       include: [
         {
@@ -311,9 +331,9 @@ class ScoreboardLayoutsController {
           }
         },
         {
-          model: User,
-          as: 'user',
-          attributes: ['id', 'username', 'departmentId']
+          model: Jobtitle,
+          as: 'jobtitle',
+          attributes: ['id', 'title', 'departmentId']
         }
       ]
     });
@@ -329,7 +349,10 @@ class ScoreboardLayoutsController {
   validateCreatescoreboardLayoutInput(data) {
     let errors = {};
     // Description validation
-    if (data.userId == null) errors.userId = 'UserId is required';
+    if (data.title == null || data.title == '')
+      errors.title = 'Job title is required';
+    if (data.departmentId == null || data.departmentId == '')
+      errors.department = 'Department is required';
 
     if (data.KPIIds == null || !isArray(data.KPIIds))
       errors.KPIIds = 'KPIIds is required and must be array';

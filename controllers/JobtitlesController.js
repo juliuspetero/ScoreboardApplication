@@ -1,6 +1,13 @@
 const isEmpty = require('lodash/isEmpty');
 
-const { Jobtitle, Department, User } = require('../models');
+const {
+  Jobtitle,
+  Department,
+  User,
+  ScoreboardLayout,
+  KPI,
+  KPIScoreboardLayout
+} = require('../models');
 
 class JobtitlesController {
   async getAllJobtitles(req, res) {
@@ -10,6 +17,24 @@ class JobtitlesController {
           model: Department,
           as: 'department',
           attributes: ['id', 'title']
+        },
+        {
+          model: ScoreboardLayout,
+          as: 'scoreboardLayout',
+          include: [
+            {
+              model: KPI,
+              as: 'kpis',
+              required: false,
+              attributes: ['id', 'title'],
+              through: {
+                model: KPIScoreboardLayout,
+                as: 'kPIScoreboardLayout',
+                attributes: ['KPIWeight']
+              }
+            }
+          ]
+          // attributes: ['id']
         }
       ]
     });
@@ -30,6 +55,24 @@ class JobtitlesController {
           model: Department,
           as: 'department',
           attributes: ['id', 'title']
+        },
+        {
+          model: ScoreboardLayout,
+          as: 'scoreboardLayout',
+          include: [
+            {
+              model: KPI,
+              as: 'kpis',
+              required: false,
+              attributes: ['id', 'title'],
+              through: {
+                model: KPIScoreboardLayout,
+                as: 'kPIScoreboardLayout',
+                attributes: ['KPIWeight']
+              }
+            }
+          ]
+          // attributes: ['id']
         }
       ]
     });
@@ -53,8 +96,25 @@ class JobtitlesController {
   async deleteJobtitleById(req, res) {
     const jobtitle = await Jobtitle.findOne({ where: { id: req.params.id } });
     if (jobtitle != null) {
-      // Delete the role
+      // Delete the job title
       await Jobtitle.destroy({ where: { id: req.params.id } });
+
+      // Delete scoreboard layout
+      const scoreboardLayout = await ScoreboardLayout.findOne({
+        where: { jobtitleId: req.params.id }
+      });
+
+      if (scoreboardLayout !== null) {
+        await ScoreboardLayout.destroy({
+          where: { id: scoreboardLayout.id }
+        });
+
+        // Delete the KPIScoreboard layout
+        await KPIScoreboardLayout.destroy({
+          where: { scoreboardLayoutId: scoreboardLayout.id }
+        });
+      }
+
       res.status(200).json({
         message: `Jobtitle with ID = ${req.params.id} is has been successfully deleted`
       });

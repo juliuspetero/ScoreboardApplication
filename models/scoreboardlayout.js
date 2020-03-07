@@ -9,15 +9,17 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         type: DataTypes.UUID
       },
-      userId: DataTypes.UUID
+      jobtitleId: DataTypes.UUID
     },
     {}
   );
+
   ScoreboardLayout.associate = function(models) {
-    ScoreboardLayout.belongsTo(models.User, {
-      foreignKey: 'userId',
-      as: 'user'
+    ScoreboardLayout.belongsTo(models.Jobtitle, {
+      foreignKey: 'jobtitleId',
+      as: 'jobtitle'
     });
+
     ScoreboardLayout.belongsToMany(models.KPI, {
       through: 'KPIScoreboardLayouts',
       foreignKey: 'scoreboardLayoutId',

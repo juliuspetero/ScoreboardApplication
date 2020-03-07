@@ -118,6 +118,8 @@ class UsersController {
       const scoreboards = await scoreBoardsRepository.findScoreBoardsByUserId(
         req.params.id
       );
+
+      // Delete all his scoreboards
       scoreboards.forEach(async sb => {
         await KPIScoreBoard.destroy({ where: { scoreBoardId: sb.id } });
       });

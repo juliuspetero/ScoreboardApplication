@@ -30,11 +30,6 @@ module.exports = (sequelize, DataTypes) => {
       as: 'scoreBoards'
     });
 
-    User.hasOne(models.ScoreboardLayout, {
-      foreignKey: 'userId',
-      as: 'scoreboardLayouts'
-    });
-
     User.belongsTo(models.Department, {
       foreignKey: 'departmentId',
       as: 'department'

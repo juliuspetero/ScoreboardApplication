@@ -21,6 +21,11 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'departmentId',
       as: 'department'
     });
+
+    Jobtitle.hasOne(models.ScoreboardLayout, {
+      foreignKey: 'jobtitleId',
+      as: 'scoreboardLayout'
+    });
   };
   return Jobtitle;
 };

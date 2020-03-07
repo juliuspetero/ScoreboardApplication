@@ -1,4 +1,11 @@
-const { User, Role, UserRole, Department, ScoreBoard } = require('../models');
+const {
+  User,
+  Role,
+  UserRole,
+  Department,
+  ScoreBoard,
+  Jobtitle
+} = require('../models');
 
 class UsersRepository {
   // Fetch all the Users in the database
@@ -20,6 +27,11 @@ class UsersRepository {
         {
           model: Department,
           as: 'department',
+          attributes: ['id', 'title']
+        },
+        {
+          model: Jobtitle,
+          as: 'jobtitle',
           attributes: ['id', 'title']
         }
       ]
@@ -46,6 +58,11 @@ class UsersRepository {
         {
           model: Department,
           as: 'department',
+          attributes: ['id', 'title']
+        },
+        {
+          model: Jobtitle,
+          as: 'jobtitle',
           attributes: ['id', 'title']
         }
       ]
