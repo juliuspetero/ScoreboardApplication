@@ -9,14 +9,14 @@ const { sequelize, Sequelize } = require('./models');
 
 const app = express();
 
-// Open up opportunity for accessing profile pictures
-app.use('/api/uploads', express.static(path.join(__dirname, 'assets/uploads')));
-
 // Initialize passport with express
 app.use(passport.initialize());
 
 // Allow cross origin resource sharing
 app.use(cors());
+
+// Open up opportunity for accessing profile pictures
+app.use('/api/uploads', express.static(path.join(__dirname, 'assets/uploads')));
 
 app.use(express.json());
 
