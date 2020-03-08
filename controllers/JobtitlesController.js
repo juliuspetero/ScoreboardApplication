@@ -26,7 +26,7 @@ class JobtitlesController {
               model: KPI,
               as: 'kpis',
               required: false,
-              attributes: ['id', 'title'],
+              attributes: ['id', 'title', 'description'],
               through: {
                 model: KPIScoreboardLayout,
                 as: 'kPIScoreboardLayout',

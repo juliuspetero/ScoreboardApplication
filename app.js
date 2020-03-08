@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const { handleError, ErrorHandler } = require('./helpers/error');
 
 // Strategized passport to handle JWT
@@ -7,6 +8,10 @@ const passport = require('./helpers/passportAuthentication');
 const { sequelize, Sequelize } = require('./models');
 
 const app = express();
+
+// Open up opportunity for accessing profile pictures
+app.use('/api/uploads', express.static(path.join(__dirname, 'assets/uploads')));
+
 // Initialize passport with express
 app.use(passport.initialize());
 

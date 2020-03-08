@@ -2,6 +2,8 @@ const bcrypt = require('bcryptjs');
 const validator = require('validator');
 const isEmpty = require('lodash/isEmpty');
 const { Op } = require('sequelize');
+const cloneDeep = require('lodash/cloneDeep');
+const fs = require('fs');
 
 const {
   UserRole,
@@ -74,13 +76,6 @@ class UsersController {
       return;
     }
 
-    // DELETE THIS LINE OF CODE
-    // res.status(201).json({
-    //   message: `User with email ${req.body.email} has been created successfully`,
-    //   password: unhashedPassword
-    // });
-    // return;
-
     let user = await usersRepository.findUserByEmailAsync(req.body.email);
 
     if (user != null) {
@@ -115,11 +110,17 @@ class UsersController {
     if (user !== null) {
       // Delete User
       await usersRepository.removeUserByIdAsync(req.params.id);
+
+      // Delete profile photo
+      await fs.unlink(`./assets/uploads/${user.photoUrl}`, error => {
+        if (error) console.log(error);
+      });
+
+      // Delete all his scoreboards
       const scoreboards = await scoreBoardsRepository.findScoreBoardsByUserId(
         req.params.id
       );
 
-      // Delete all his scoreboards
       scoreboards.forEach(async sb => {
         await KPIScoreBoard.destroy({ where: { scoreBoardId: sb.id } });
       });
@@ -136,13 +137,55 @@ class UsersController {
   }
 
   async updateUserById(req, res) {
+    console.log(req.body);
+    // Validate parameter
+    const { errors, isValid } = this.validateEditEmployee(cloneDeep(req.body));
+
     const user = await usersRepository.findUserByIdAsync(req.params.id);
     if (user != null) {
-      // Update the role
+      if (!isValid) {
+        res.status(400).json(errors);
+        return;
+      }
+
+      // Check for the password presence
+      if (req.body.password !== undefined) {
+        // Perform hashing and delete that password
+        // The user is not yet taken, so encrypt the password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(req.body.password, salt);
+        req.body.password = hashedPassword;
+      }
+
+      if (req.file) {
+        // Query the database to get the previous photo URL
+        fs.unlink(`./assets/uploads/${user.photoUrl}`, error => {
+          if (error) console.log(error);
+        });
+
+        // Add the photoUrl property to be saved to the database
+        req.body.photoUrl = req.file.filename;
+      }
+
+      // Update the user data
       await usersRepository.updateUserAsync(req.body, req.params.id);
-      res.status(200).json({
-        message: `User with ID = ${req.params.id} is has been successfully updated`
-      });
+
+      // Check and update role
+      if (req.body.roles !== undefined) {
+        // Add user with the Id to a role by saving UserRole to the Database
+        // In case of many roles use a loop the roles to the database
+        const roleId = req.body.roles[0];
+        await UserRole.update({ roleId }, { where: { userId: req.params.id } });
+      }
+
+      // Response back with that password
+      let response = {
+        message: `User with ID = ${req.params.id} has been successfully updated`
+      };
+
+      if (req.body.passwordConfirmation !== undefined)
+        response.password = req.body.passwordConfirmation;
+      res.status(200).json(response);
     } else {
       res.status(404).json({
         message: `User with ID = ${req.params.id} is not found!`
@@ -162,6 +205,87 @@ class UsersController {
     }
   }
 
+  // Validate edition of employee data
+  validateEditEmployee(data) {
+    let errors = {};
+
+    // Email validation
+    if (data.email !== undefined) {
+      if (data.email == '') errors.email = 'Email is required';
+      else if (!validator.isEmail(data.email))
+        errors.email = 'Email is not correct';
+    }
+
+    // Phone number validation
+    if (data.phoneNumber !== undefined) {
+      if (data.phoneNumber.length < 8 || data.phoneNumber == '')
+        errors.phoneNumber = 'Phone is required and should be valid';
+    }
+
+    // Employee Type
+    if (data.employeeType !== undefined) {
+      if (data.employeeType == '')
+        errors.employeeType = 'Emplyee Type is required';
+    }
+
+    // Department
+    if (data.departmentId !== undefined) {
+      if (data.depart == '') errors.employeeType = 'Department is required';
+    }
+
+    // Job title
+    if (data.jobtitleId !== undefined) {
+      if (data.jobtitleId == '') errors.jobtitle = 'Job title is required';
+    }
+
+    // Job Description
+    if (data.jobDescription !== undefined) {
+      if (data.jobDescription == '')
+        errors.jobDescription = 'Job Description is required';
+    }
+
+    if (data.username !== undefined) {
+      if (data.username == '') errors.username = 'User Name is required';
+    }
+
+    // Password validation
+    if (data.password !== undefined) {
+      if (data.password.length < 4)
+        errors.password = 'Password must be greater 3 characters';
+      if (data.passwordConfirmation == null)
+        errors.passwordConfirmation = 'Password Confirmation is required';
+      if (
+        data.password != undefined &&
+        data.passwordConfirmation != undefined &&
+        !validator.equals(data.password, data.passwordConfirmation)
+      )
+        errors.passwordConfirmation = 'Passwords must match';
+    }
+
+    // Check for department selection
+    if (data.departmentId !== undefined) {
+      if (data.departmentId == '')
+        errors.department = 'DepartmentId is required';
+    }
+
+    // Check for the roles validation
+    if (data.roles !== undefined) {
+      if (!Array.isArray(data.roles)) errors.roles = 'Roles should be an array';
+      else if (Array.isArray(data.roles)) {
+        if (data.roles.length == 0)
+          errors.roles = 'Roles cannot be an empty array';
+        data.roles.forEach(role => {
+          if (role === '') errors.roles = 'A role cannot not be empty';
+        });
+      }
+    }
+
+    return {
+      errors,
+      isValid: isEmpty(errors)
+    };
+  }
+
   validateInput(data) {
     let errors = {};
 
@@ -173,6 +297,21 @@ class UsersController {
     // Phone number validation
     if (data.phoneNumber == null || data.phoneNumber.length < 8)
       errors.phoneNumber = 'Phone is required and should be valid';
+
+    // Employee Type
+    if (data.employeeType == null || data.employeeType == '')
+      errors.employeeType = 'Emplyee Type is required';
+    if (data.departmentId == null || data.departmentId == '')
+      errors.department = 'Department is required';
+
+    // Job title
+    if (data.jobtitleId == null || data.jobtitleId == '')
+      errors.jobtitle = 'Job title is required';
+
+    // Job Description
+    if (data.jobDescription == null || data.jobDescription == '')
+      errors.jobDescription = 'Job Description is required';
+
     if (data.username == null || data.username == '')
       errors.username = 'User Name is required';
 
