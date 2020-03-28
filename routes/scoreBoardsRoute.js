@@ -9,6 +9,14 @@ router.get('/', (req, res) =>
   scoreBoardsController.getAllScoreBoards(req, res)
 );
 
+router.get('/:departmentId/:queryBy', (req, res) =>
+  scoreBoardsController.getScoreboards(req, res)
+);
+
+router.get('/user/:userId/:queryBy', (req, res) =>
+  scoreBoardsController.getUserScoreboardsbyDuration(req, res)
+);
+
 router.get('/get-user-scoreboards', (req, res) =>
   scoreBoardsController.getUserScoreBoards(req, res)
 );

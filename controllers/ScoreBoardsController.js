@@ -1,6 +1,8 @@
 const isEmpty = require('lodash/isEmpty');
 const isArray = require('lodash/isArray');
 const cloneDeep = require('lodash/cloneDeep');
+const moment = require('moment');
+const { Op } = require('sequelize');
 
 const ScoreBoardsRepository = require('../repositories/ScoreBoardsRepository');
 const scoreBoardsRepository = new ScoreBoardsRepository();
@@ -22,6 +24,159 @@ const {
 class ScoreBoardsController {
   async getAllScoreBoards(req, res) {
     const scoreboards = await scoreBoardsRepository.findAllScoreBoardsAsync();
+    res.status(200).json(scoreboards);
+  }
+
+  // GET SCOREBOARDS FOR SPECIFIED DEPARTMENT AND CALCULATED COMMULATIVE FOR EACH EMPLOYEE
+  async getScoreboards(req, res) {
+    const departmentId = req.params.departmentId;
+    const queryBy = req.params.queryBy;
+
+    let scoreboards = null;
+
+    if (queryBy == '1month') {
+      // Scoreboards within one month
+      const MONTH_START = moment()
+        .date(1)
+        .hour(3)
+        .minute(0)
+        .seconds(0)
+        .toDate();
+      scoreboards = await ScoreBoard.findAll({
+        include: [
+          {
+            model: KPI,
+            as: 'kpis',
+            required: false, // This queries all the users even if they don't have any roles
+            attributes: ['id', 'title'],
+            through: {
+              model: KPIScoreBoard,
+              as: 'kPIScoreBoard',
+              attributes: ['KPIWeight', 'KPIScore']
+            }
+          },
+          {
+            model: User,
+            as: 'user',
+            attributes: ['id', 'username', 'departmentId']
+          }
+        ],
+        order: [['updatedAt', 'DESC']],
+        where: {
+          createdAt: {
+            [Op.gte]: MONTH_START
+          }
+        }
+      });
+    } else if (queryBy == '3months') {
+      // Scoreboard within 3 months
+      scoreboards = await ScoreBoard.findAll({
+        include: [
+          {
+            model: KPI,
+            as: 'kpis',
+            required: false, // This queries all the users even if they don't have any roles
+            attributes: ['id', 'title'],
+            through: {
+              model: KPIScoreBoard,
+              as: 'kPIScoreBoard',
+              attributes: ['KPIWeight', 'KPIScore']
+            }
+          },
+          {
+            model: User,
+            as: 'user',
+            attributes: ['id', 'username', 'departmentId']
+          }
+        ],
+        order: [['updatedAt', 'DESC']],
+        where: {
+          createdAt: {
+            [Op.gte]: moment()
+              .subtract(3, 'months')
+              .toDate()
+          }
+        }
+      });
+    } else if (queryBy == '6months') {
+      // Scoreboards within 6 months
+
+      scoreboards = await ScoreBoard.findAll({
+        include: [
+          {
+            model: KPI,
+            as: 'kpis',
+            required: false, // This queries all the users even if they don't have any roles
+            attributes: ['id', 'title'],
+            through: {
+              model: KPIScoreBoard,
+              as: 'kPIScoreBoard',
+              attributes: ['KPIWeight', 'KPIScore']
+            }
+          },
+          {
+            model: User,
+            as: 'user',
+            attributes: ['id', 'username', 'departmentId']
+          }
+        ],
+        order: [['updatedAt', 'DESC']],
+        where: {
+          createdAt: {
+            [Op.gte]: moment()
+              .subtract(6, 'months')
+              .toDate()
+          }
+        }
+      });
+    } else if (queryBy == '1year') {
+      // Scoreboard within one year
+      const YEAR_START = moment()
+        .month(0)
+        .date(1)
+        .hour(3)
+        .minute(0)
+        .seconds(0)
+        .toDate();
+
+      scoreboards = await ScoreBoard.findAll({
+        include: [
+          {
+            model: KPI,
+            as: 'kpis',
+            required: false, // This queries all the users even if they don't have any roles
+            attributes: ['id', 'title'],
+            through: {
+              model: KPIScoreBoard,
+              as: 'kPIScoreBoard',
+              attributes: ['KPIWeight', 'KPIScore']
+            }
+          },
+          {
+            model: User,
+            as: 'user',
+            attributes: ['id', 'username', 'departmentId']
+          }
+        ],
+        order: [['updatedAt', 'DESC']],
+        where: {
+          createdAt: {
+            [Op.gte]: YEAR_START
+          }
+        }
+      });
+    } else {
+      res.status(404).json({
+        message: `The duration query ${queryBy} is not found!`
+      });
+      return;
+    }
+
+    // Filter all the scoreboards which belongs to the specified departments
+    scoreboards = scoreboards.filter(sb => {
+      if (sb.user.departmentId == departmentId) return true;
+    });
+
     res.status(200).json(scoreboards);
   }
 
@@ -214,6 +369,12 @@ class ScoreBoardsController {
     const scoreBoardId = req.body.scoreBoardId;
     const KPIs = req.body.kpis;
 
+    // Update the updatedAt to the current date and time
+    await ScoreBoard.update(
+      { id: scoreBoardId },
+      { where: { id: scoreBoardId } }
+    );
+
     for (let index = 0; index <= KPIs.length; index++) {
       // Terminate the loop when all the the records has been saved to the DB
       if (index > KPIs.length - 1) {
@@ -236,7 +397,7 @@ class ScoreBoardsController {
         break;
       }
 
-      // Update the weights stored in the KPIScoreboard table
+      // Update scores stored in the KPIScoreboard table
       await KPIScoreBoard.update(
         {
           KPIScore: KPIs[index].score
@@ -250,7 +411,6 @@ class ScoreBoardsController {
   async editKPIWeights(req, res) {
     const scoreBoardId = req.body.scoreBoardId;
     const KPIs = req.body.kpis;
-
     // Delete the KPIs when it is not selected
     const storedScoreboard = await scoreBoardsRepository.findScoreBoardByIdAsync(
       scoreBoardId
@@ -323,6 +483,159 @@ class ScoreBoardsController {
           { where: { id: kpiScoreboard.id } }
         );
     }
+  }
+
+  // GET SCOREBOARDS FOR SPECIFIED USER FOR A SPECIFIED DURATION
+  async getUserScoreboardsbyDuration(req, res) {
+    const userId = req.params.userId;
+    const queryBy = req.params.queryBy;
+
+    let scoreboards = null;
+
+    if (queryBy == '1month') {
+      // Scoreboards within one month
+      const MONTH_START = moment()
+        .date(1)
+        .hour(3)
+        .minute(0)
+        .seconds(0)
+        .toDate();
+      scoreboards = await ScoreBoard.findAll({
+        include: [
+          {
+            model: KPI,
+            as: 'kpis',
+            required: false, // This queries all the users even if they don't have any roles
+            attributes: ['id', 'title'],
+            through: {
+              model: KPIScoreBoard,
+              as: 'kPIScoreBoard',
+              attributes: ['KPIWeight', 'KPIScore']
+            }
+          },
+          {
+            model: User,
+            as: 'user',
+            attributes: ['id', 'username', 'departmentId']
+          }
+        ],
+        order: [['updatedAt', 'DESC']],
+        where: {
+          createdAt: {
+            [Op.gte]: MONTH_START
+          }
+        }
+      });
+    } else if (queryBy == '3months') {
+      // Scoreboard within 3 months
+      scoreboards = await ScoreBoard.findAll({
+        include: [
+          {
+            model: KPI,
+            as: 'kpis',
+            required: false, // This queries all the users even if they don't have any roles
+            attributes: ['id', 'title'],
+            through: {
+              model: KPIScoreBoard,
+              as: 'kPIScoreBoard',
+              attributes: ['KPIWeight', 'KPIScore']
+            }
+          },
+          {
+            model: User,
+            as: 'user',
+            attributes: ['id', 'username', 'departmentId']
+          }
+        ],
+        order: [['updatedAt', 'DESC']],
+        where: {
+          createdAt: {
+            [Op.gte]: moment()
+              .subtract(3, 'months')
+              .toDate()
+          }
+        }
+      });
+    } else if (queryBy == '6months') {
+      // Scoreboards within 6 months
+
+      scoreboards = await ScoreBoard.findAll({
+        include: [
+          {
+            model: KPI,
+            as: 'kpis',
+            required: false, // This queries all the users even if they don't have any roles
+            attributes: ['id', 'title'],
+            through: {
+              model: KPIScoreBoard,
+              as: 'kPIScoreBoard',
+              attributes: ['KPIWeight', 'KPIScore']
+            }
+          },
+          {
+            model: User,
+            as: 'user',
+            attributes: ['id', 'username', 'departmentId']
+          }
+        ],
+        order: [['updatedAt', 'DESC']],
+        where: {
+          createdAt: {
+            [Op.gte]: moment()
+              .subtract(6, 'months')
+              .toDate()
+          }
+        }
+      });
+    } else if (queryBy == '1year') {
+      // Scoreboard within one year
+      const YEAR_START = moment()
+        .month(0)
+        .date(1)
+        .hour(3)
+        .minute(0)
+        .seconds(0)
+        .toDate();
+
+      scoreboards = await ScoreBoard.findAll({
+        include: [
+          {
+            model: KPI,
+            as: 'kpis',
+            required: false, // This queries all the users even if they don't have any roles
+            attributes: ['id', 'title'],
+            through: {
+              model: KPIScoreBoard,
+              as: 'kPIScoreBoard',
+              attributes: ['KPIWeight', 'KPIScore']
+            }
+          },
+          {
+            model: User,
+            as: 'user',
+            attributes: ['id', 'username', 'departmentId']
+          }
+        ],
+        order: [['updatedAt', 'DESC']],
+        where: {
+          createdAt: {
+            [Op.gte]: YEAR_START
+          }
+        }
+      });
+    } else {
+      res.status(404).json({
+        message: `The duration query ${queryBy} is not found!`
+      });
+      return;
+    }
+
+    // Filter all the scoreboards which belongs to the specified departments
+    scoreboards = scoreboards.filter(sb => {
+      if (sb.user.id == userId) return true;
+    });
+
+    res.status(200).json(scoreboards);
   }
 
   // Retrieve the scoreboard for a specific user

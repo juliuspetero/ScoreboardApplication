@@ -11,7 +11,8 @@ const {
   Department,
   Role,
   ScoreBoard,
-  KPIScoreBoard
+  KPIScoreBoard,
+  Jobtitle
 } = require('../models');
 
 const UsersRepository = require('../repositories/UsersRepository');
@@ -51,6 +52,11 @@ class UsersController {
         {
           model: Department,
           as: 'department',
+          attributes: ['id', 'title']
+        },
+        {
+          model: Jobtitle,
+          as: 'jobtitle',
           attributes: ['id', 'title']
         }
       ]
@@ -137,7 +143,6 @@ class UsersController {
   }
 
   async updateUserById(req, res) {
-    console.log(req.body);
     // Validate parameter
     const { errors, isValid } = this.validateEditEmployee(cloneDeep(req.body));
 

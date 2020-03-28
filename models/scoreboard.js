@@ -10,7 +10,8 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.UUID
       },
       isApproved: DataTypes.BOOLEAN,
-      userId: DataTypes.UUID
+      userId: DataTypes.UUID,
+      createdAt: DataTypes.DATE
     },
     {}
   );
