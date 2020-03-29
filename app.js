@@ -37,6 +37,7 @@ app.use('/api/scoreboards', require('./routes/scoreBoardsRoute'));
 app.use('/api/departments', require('./routes/departmentsRoute'));
 app.use('/api/jobtitles', require('./routes/jobtitlesRoute'));
 app.use('/api/scoreboardlayouts', require('./routes/scoreboardLayoutRoute'));
+app.use('/api/reports', require('./routes/reportsRoute'));
 
 // Global Error Handling
 app.use((error, req, res, next) => {
