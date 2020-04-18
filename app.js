@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const { handleError, ErrorHandler } = require('./helpers/error');
+const authenticateUser = require('./helpers/authenticateUser');
 
 // Strategized passport to handle JWT
 const passport = require('./helpers/passportAuthentication');
@@ -28,16 +29,34 @@ sequelize
 
 // Http requests flow to their respective routes
 app.use('/', require('./routes/homeRoute'));
+
+// This is used for login, it does need to be protected
 app.use('/api/accounts', require('./routes/accountsRoute'));
-app.use('/api/administration', require('./routes/administrationRoute'));
-app.use('/api/roles', require('./routes/rolesRoute'));
-app.use('/api/users', require('./routes/usersRoute'));
-app.use('/api/kpis', require('./routes/kpisRoute'));
-app.use('/api/scoreboards', require('./routes/scoreBoardsRoute'));
-app.use('/api/departments', require('./routes/departmentsRoute'));
-app.use('/api/jobtitles', require('./routes/jobtitlesRoute'));
-app.use('/api/scoreboardlayouts', require('./routes/scoreboardLayoutRoute'));
-app.use('/api/reports', require('./routes/reportsRoute'));
+app.use(
+  '/api/administration',
+  authenticateUser,
+  require('./routes/administrationRoute')
+);
+app.use('/api/roles', authenticateUser, require('./routes/rolesRoute'));
+app.use('/api/users', authenticateUser, require('./routes/usersRoute'));
+app.use('/api/kpis', authenticateUser, require('./routes/kpisRoute'));
+app.use(
+  '/api/scoreboards',
+  authenticateUser,
+  require('./routes/scoreBoardsRoute')
+);
+app.use(
+  '/api/departments',
+  authenticateUser,
+  require('./routes/departmentsRoute')
+);
+app.use('/api/jobtitles', authenticateUser, require('./routes/jobtitlesRoute'));
+app.use(
+  '/api/scoreboardlayouts',
+  authenticateUser,
+  require('./routes/scoreboardLayoutRoute')
+);
+app.use('/api/reports', authenticateUser, require('./routes/reportsRoute'));
 
 // Global Error Handling
 app.use((error, req, res, next) => {
@@ -45,8 +64,6 @@ app.use((error, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-
-// sequelize.sync({force: true});
 
 app.listen(
   PORT,

@@ -19,8 +19,8 @@ const strategy = new JwtStrategy(jwtOptions, async (jwtPayload, done) => {
   // It does not execute any other code
 
   // This is when the token is valid
-  const user = await accountsRepository.findUserById(
-    jwtPayload.userInformation.id
+  const user = await accountsRepository.findUserByEmailAsync(
+    jwtPayload.userInformation.email
   );
 
   if (user) return done(null, user);

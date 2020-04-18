@@ -8,9 +8,17 @@ const departmentsController = new DepartmentsController();
 router.get('/get-users-by-department', (req, res) =>
   departmentsController.getUserByDepartment(req, res)
 );
-router.get('/', (req, res) =>
-  departmentsController.getAllDepartments(req, res)
-);
+router.get('/', (req, res) => {
+  // A user must be a admin to access this controller action method
+  if (req.user.roles[0].id == '3by786gk6s03iu2') {
+    departmentsController.getAllDepartments(req, res);
+  } else {
+    res
+      .status(403)
+      .json({ message: 'You are not authorized to access this resource' });
+    return;
+  }
+});
 
 router.get('/:id', (req, res) =>
   departmentsController.getDepartmentById(req, res)

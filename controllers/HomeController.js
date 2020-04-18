@@ -2,7 +2,8 @@ class HomeController {
   constructor() {}
   index(req, res) {
     res.json({
-      message: 'Scoreboard Application is Running!'
+      message: 'Scoreboard Application is Running!',
+      user: req.user
     });
   }
 }
