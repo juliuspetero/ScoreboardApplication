@@ -13,9 +13,9 @@ class ReportsController {
         {
           model: ScoreBoard,
           as: 'scoreboard',
-          attributes: ['id', 'userId']
-        }
-      ]
+          attributes: ['id', 'userId'],
+        },
+      ],
     });
     res.status(200).json(reports);
   }
@@ -24,12 +24,12 @@ class ReportsController {
     const scoreBoardId = req.params.id;
 
     const scoreboard = await ScoreBoard.findOne({
-      where: { id: scoreBoardId }
+      where: { id: scoreBoardId },
     });
 
     if (scoreboard == null) {
       res.status(404).json({
-        errorMessage: `The scoreboard with ID = ${scoreBoardId} is not found!`
+        errorMessage: `The scoreboard with ID = ${scoreBoardId} is not found!`,
       });
       return;
     }
@@ -40,9 +40,9 @@ class ReportsController {
         {
           model: ScoreBoard,
           as: 'scoreboard',
-          attributes: ['id', 'userId']
-        }
-      ]
+          attributes: ['id', 'userId'],
+        },
+      ],
     });
     res.status(200).json(reports);
   }
@@ -55,13 +55,13 @@ class ReportsController {
         {
           model: ScoreBoard,
           as: 'scoreboard',
-          attributes: ['id', 'userId']
-        }
-      ]
+          attributes: ['id', 'userId'],
+        },
+      ],
     });
     if (report == null)
       res.status(404).json({
-        message: `Report with ID = ${req.params.id} is not found!`
+        message: `Report with ID = ${req.params.id} is not found!`,
       });
     else res.status(200).json(report);
   }
@@ -78,37 +78,26 @@ class ReportsController {
     if (req.file)
       // Add the document URL property to be saved to the database
       req.body.documentUrl = req.file.filename;
-    else {
-      res
-        .status(400)
-        .json({ errorMessage: `The document file upload is required` });
-      return;
-    }
 
     const description = req.body.description;
     const scoreBoardId = req.body.scoreBoardId;
 
     const scoreboard = await ScoreBoard.findOne({
-      where: { id: scoreBoardId }
+      where: { id: scoreBoardId },
     });
 
     if (scoreboard == null) {
       res.status(404).json({
-        errorMessage: `The scoreboard with ID = ${scoreBoardId} is not found`
+        errorMessage: `The scoreboard with ID = ${scoreBoardId} is not found`,
       });
       return;
     }
-
-    if (req.file)
-      // Add the document URL property to be saved to the database
-      req.body.documentUrl = req.file.filename;
-    else req.body.documentUrl = 'noimage.png';
 
     // Create Job title
     const report = await Report.create({
       description,
       documentUrl: req.body.documentUrl,
-      scoreBoardId
+      scoreBoardId,
     });
 
     res.status(201).json(report);
@@ -117,23 +106,23 @@ class ReportsController {
   async deleteReport(req, res) {
     const report = await Report.findOne({
       where: {
-        id: req.params.id
-      }
+        id: req.params.id,
+      },
     });
     if (report != null) {
       await Report.destroy({ where: { id: req.params.id } });
 
       // Delete document Url
-      await fs.unlink(`./assets/uploads/${report.documentUrl}`, error => {
+      await fs.unlink(`./assets/uploads/${report.documentUrl}`, (error) => {
         if (error) console.log(error);
       });
 
       res.status(200).json({
-        message: `Report with ID = ${req.params.id} is has been successfully deleted`
+        message: `Report with ID = ${req.params.id} is has been successfully deleted`,
       });
     } else {
       res.status(404).json({
-        message: `Report with ID = ${req.params.id} is not found!`
+        message: `Report with ID = ${req.params.id} is not found!`,
       });
     }
   }
@@ -145,7 +134,7 @@ class ReportsController {
       // The user wants to change the document
       if (req.file) {
         // Query the database to get the previous photo URL
-        fs.unlink(`./assets/uploads/${report.documentUrl}`, error => {
+        fs.unlink(`./assets/uploads/${report.documentUrl}`, (error) => {
           if (error) console.log(error);
         });
 
@@ -158,13 +147,13 @@ class ReportsController {
 
       // Response back with that password
       let response = {
-        message: `Report with ID = ${req.params.id} has been successfully updated`
+        message: `Report with ID = ${req.params.id} has been successfully updated`,
       };
 
       res.status(200).json(response);
     } else {
       res.status(404).json({
-        message: `Report with ID = ${req.params.id} is not found!`
+        message: `Report with ID = ${req.params.id} is not found!`,
       });
     }
   }
@@ -178,7 +167,7 @@ class ReportsController {
       errors.scoreboard = 'Scoreboard is required';
     return {
       errors,
-      isValid: isEmpty(errors)
+      isValid: isEmpty(errors),
     };
   }
 }
