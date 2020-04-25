@@ -25,7 +25,7 @@ app.use(express.json());
 sequelize
   .authenticate()
   .then(() => console.log('Connection has been established successfully.'))
-  .catch(err => console.error('Unable to connect to the database:', err));
+  .catch((err) => console.error('Unable to connect to the database:', err));
 
 // Http requests flow to their respective routes
 app.use('/', require('./routes/homeRoute'));
@@ -37,8 +37,8 @@ app.use(
   authenticateUser,
   require('./routes/administrationRoute')
 );
-app.use('/api/roles', authenticateUser, require('./routes/rolesRoute'));
-app.use('/api/users', authenticateUser, require('./routes/usersRoute'));
+app.use('/api/roles', require('./routes/rolesRoute'));
+app.use('/api/users', require('./routes/usersRoute'));
 app.use('/api/kpis', authenticateUser, require('./routes/kpisRoute'));
 app.use(
   '/api/scoreboards',
